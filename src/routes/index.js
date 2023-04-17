@@ -1,8 +1,5 @@
-import express from 'express'
-const router = express.Router()
+import { router as fileRoute } from './file.route.js'
 
-router.get('/', function (req, res, next) {
-  res.send('Basic Response!!!')
-})
-
-export default router
+export default function (app) {
+  app.use('/files', fileRoute)
+}
