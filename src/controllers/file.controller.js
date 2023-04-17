@@ -1,11 +1,17 @@
 import axios from 'axios'
 import { API_KEY, FILE_HEADER_FORMAT } from '../lib/config.js'
 
-export const getAll = async (req, res, next) => {
+export const getFileData = async (req, res, next) => {
   try {
-    const response = await axios.get('https://echo-serv.tbxnet.com/v1/secret/files', { headers: { Authorization: API_KEY } })
+    const fileNameParam = req.query.fileName
+    let fileNameList
 
-    const fileNameList = response.data.files
+    if (fileNameParam) {
+      fileNameList = [fileNameParam]
+    } else {
+      const response = await axios.get('https://echo-serv.tbxnet.com/v1/secret/files', { headers: { Authorization: API_KEY } })
+      fileNameList = response.data.files
+    }
 
     const fileList = await Promise.allSettled(fileNameList.map((fileName) => {
       return axios.get(`https://echo-serv.tbxnet.com/v1/secret/file/${fileName}`, { headers: { Authorization: API_KEY } })
@@ -48,6 +54,16 @@ export const getAll = async (req, res, next) => {
     })
 
     res.send(validFileList)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const getFileList = async (req, res, next) => {
+  try {
+    const response = await axios.get('https://echo-serv.tbxnet.com/v1/secret/files', { headers: { Authorization: API_KEY } })
+
+    res.send(response.data)
   } catch (error) {
     next(error)
   }
